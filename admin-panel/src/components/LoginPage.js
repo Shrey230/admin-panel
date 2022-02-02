@@ -4,15 +4,15 @@ import axios from 'axios';
 
 import '../App.css'
 
-class SignInPage extends Component{
+class LogInPage extends Component{
     
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             input: {},
             errors: {}
         };
-         
+        this.validate = this.validate.bind(this) 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -24,6 +24,7 @@ class SignInPage extends Component{
             input
         });
     }
+    
     validate() {
         let input = this.state.input;
         let errors = {};
@@ -33,16 +34,16 @@ class SignInPage extends Component{
             isValid = false;
             errors["email"] = "Please enter your email Address.";
         }
-      
-        if ( input["email"] !== "undefined") {
-              
+
+        if (input["email"] !== "undefined") {
+
             var pattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
             if (!pattern.test(input["email"])) {
                 isValid = false;
                 errors["email"] = "Please enter valid email address.";
             }
         }
-      
+
         if (!input["password"]) {
             isValid = false;
             errors["password"] = "Please enter your password.";
@@ -56,52 +57,51 @@ class SignInPage extends Component{
         this.setState({
             errors: errors
         });
-      
         return isValid;
 
-
     }
-
-
     handleSubmit = async (e) => {
-        
+        const {email,password} = this.state.input
+
         if (this.validate()) {
-          console.log(this.state);
           try {
-            const data =
-                {
-                    email: this.state.input.email,
-                    password: this.state.input.password,
+            const config = {
+                headers: {
+                    "Content-type": "application/json"
                 }
-            console.log(data);
-            axios.post('http://localhost:4000/users/login', data)
-                .then(res => console.log(res.data));  
-            this.setState({
-                
-                email: '',
-                password: '', 
-                
-                })
+            }
+            const { data } = await axios.post(`http://localhost:4000/users/login`,
+                {
+                    email,
+                    password,
+                },
+                config);
+            alert(data) 
+          
            } catch (e) {
-            alert(e.response.data.error)
+              alert(e.response.data.error) 
           }
         }
+        else {
+            alert(this.state.errors)
+        }
       }
+    
 
     render(){
         return (
             <div className="text-center m-5-auto">
                 <h2>Sign in</h2>
-                <form onSubmit={this.handleSubmit}>
+                <form>
                     <p>
-                        <label>Username or email address</label><br />
+                        <label>email address</label><br />
                         <input
                             type="text"
-                            name="first_name"
-                            value={this.state.input.email}
+                            name="email"
                             onChange={this.handleChange}
-                            required />
+                             />
                     </p>
+                    <div className="text-danger">{this.state.errors.email}</div>
                     <p>
                         <label>Password</label>
                         <Link to="/forget-password">
@@ -110,14 +110,14 @@ class SignInPage extends Component{
                         <input
                             type="password"
                             name="password"
-                            value={this.state.input.password}
                             onChange={this.handleChange}
-                            required />
+                            />
                     </p>
+                    <div className="text-danger">{this.state.errors.password}</div>
                     <p>
-                        <button id="sub_btn" >Login</button>
-                        {this.state.email}
-                        {this.state.password}
+                        <button id="sub_btn" onClick={this.handleSubmit}>Login</button>
+                        {this.state.input.email}
+                        {this.state.input.password}
                     </p>
                 </form>
                 <footer>
@@ -129,4 +129,4 @@ class SignInPage extends Component{
     }
 
 }
-export  default (SignInPage)
+export default LogInPage

@@ -6,13 +6,15 @@ import axios from 'axios'
 import '../App.css'
 
 class RegisterPage extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             input: {},
-            errors: {}
+            errors: {},
+
         };
-         
+
+        this.validate = this.validate.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -25,11 +27,10 @@ class RegisterPage extends Component {
             input
         });
     }
-         
+ 
     handleSubmit = async (e) => {
-      
+      const {email,firstName,lastName,password} = this.state.input
         if (this.validate()) {
-            console.log(this.state);
             try{
                 const config={
                   headers: {
@@ -38,135 +39,126 @@ class RegisterPage extends Component {
                 }
                 const {data} = await axios.post(`http://localhost:4000/users/`,
                   {
-    
-                    email: this.state.input.email,
-                    firstName: this.state.input.firstname,
-                    lastName: this.state.input.lastname,
-                    password:this.state.input.password,
-                    
+                    email,
+                    firstName,
+                    lastName,
+                    password,
                     role:"Admin",
     
                   },
-                  config
-                    );  
-                    alert(data.message)  
+                  config); 
+                  alert(data) 
+
                 } catch (e) {
                     alert(e.response.data.error)  
                 }
             }
         else {
-            alert("Something went wrong")
+            alert(this.state.errors)
         }  
-    }
-  
-      
-    validate(){
+    }   
+    validate() {
         let input = this.state.input;
         let errors = {};
-        let isValid = true;
-       
-        if (!input["firstname"]) {
-            isValid = false;
-            errors["firstname"] = "Please enter your firstname.";
+        let isValid = true
+
+        if (!input["firstName"]) {
+            isValid = false
+            errors["firstName"] = "Please enter your firstName.";
         }
-      
-        if (typeof input["firstname"] !== "undefined") {
+
+        if (typeof input["firstName"] !== "undefined") {
             const re = /^\S*$/;
-            if (input["firstname"].length < 4 || !re.test(input["firstname"])) {
-                isValid = false;
-                errors["firstname"] = "Please enter valid firstname.";
+            if (input["firstName"].length < 4 || !re.test(input["firstName"])) {
+                this.setState({ isValid: false })
+                errors["firstName"] = "Please enter valid firstName.";
             }
         }
-        if (!input["lastname"]) {
-            isValid = false;
-            errors["lastname"] = "Please enter your lastname.";
+        if (!input["lastName"]) {
+            this.setState({ isValid: false })
+            errors["lastName"] = "Please enter your lastName.";
         }
-      
-        if (input["lastname"] !== "lastname") {
+
+        if (input["lastName"] !== "lastName") {
             const re = /^\S*$/;
-            if (input["lastname"].length < 4 || !re.test(input["lastname"])) {
-                isValid = false;
-                errors["lastname"] = "Please enter valid lastname.";
+            if (input["lastName"].length < 4 || !re.test(input["lastName"])) {
+                this.setState({ isValid: false })
+                errors["lastName"] = "Please enter valid lastName.";
             }
         }
-      
+
         if (!input["email"]) {
-            isValid = false;
+            this.setState({ isValid: false })
             errors["email"] = "Please enter your email Address.";
         }
-      
+
         if (typeof input["email"] !== "undefined") {
-              
+
             var pattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
             if (!pattern.test(input["email"])) {
-                isValid = false;
+                this.setState({ isValid: false })
                 errors["email"] = "Please enter valid email address.";
             }
         }
-      
+
         if (!input["password"]) {
-            isValid = false;
+            isValid = false
             errors["password"] = "Please enter your password.";
         }
-      
+
         if (!input["confirm_password"]) {
-            isValid = false;
+            isValid = false
             errors["confirm_password"] = "Please enter your confirm password.";
         }
-      
+
         if (typeof input["password"] !== "undefined") {
             if (input["password"].length < 6) {
-                isValid = false;
+                isValid = false
                 errors["password"] = "Please add at least 6 charachter.";
             }
         }
-      
+
         if (typeof input["password"] !== "undefined" && typeof input["confirm_password"] !== "undefined") {
-              
+
             if (input["password"] !== input["confirm_password"]) {
-                isValid = false;
+                isValid = false
                 errors["password"] = "Passwords don't match.";
             }
         }
-      
+
         this.setState({
             errors: errors
         });
-      
-        return isValid;
-    }
-         
+        return true;
+    } 
     render() {
         return (
             <div className= "text-center m-5-auto">
                 <h1>Register for Admin Panel</h1>
-                <form onSubmit={this.handleSubmit}>
-      
+                <form >
                     <div className="form-group">
-                        <label >Username:</label>
+                        <label >Firstname:</label>
                         <input
                             type="text"
-                            name="username"
-                            value={this.state.input.username}
+                            name="firstName"
                             onChange={this.handleChange}
                             className="form-control"
-                            placeholder="Enter username"
-                            id="username" />
+                            placeholder="Enter first name"
+                            id="firstName" required/>
       
-                        <div className="text-danger">{this.state.errors.username}</div>
+                        <div className="text-danger">{this.state.errors.firstName}</div>
                     </div>
                     <div className="form-group">
-                        <label >Lastname:</label>
+                        <label >lastName:</label>
                         <input
                             type="text"
-                            name="lastname"
-                            value={this.state.input.lastname}
+                            name="lastName"
                             onChange={this.handleChange}
                             className="form-control"
-                            placeholder="Enter lastname"
-                            id="lastname" />
+                            placeholder="Enter lastName"
+                            id="lastName" required/>
       
-                        <div className="text-danger">{this.state.errors.username}</div>
+                        <div className="text-danger">{this.state.errors.lastName}</div>
                     </div>
       
                     <div className="form-group">
@@ -174,11 +166,10 @@ class RegisterPage extends Component {
                         <input
                             type="text"
                             name="email"
-                            value={this.state.input.email}
                             onChange={this.handleChange}
                             className="form-control"
                             placeholder="Enter email"
-                            id="email" />
+                            id="email" required/>
       
                         <div className="text-danger">{this.state.errors.email}</div>
                     </div>
@@ -188,11 +179,10 @@ class RegisterPage extends Component {
                         <input
                             type="password"
                             name="password"
-                            value={this.state.input.password}
                             onChange={this.handleChange}
                             className="form-control"
                             placeholder="Enter password"
-                            id="password" />
+                            id="password" required/>
       
                         <div className="text-danger">{this.state.errors.password}</div>
                     </div>
@@ -202,11 +192,10 @@ class RegisterPage extends Component {
                         <input
                             type="password"
                             name="confirm_password"
-                            value={this.state.input.confirm_password}
                             onChange={this.handleChange}
                             className="form-control"
                             placeholder="Enter confirm password"
-                            id="confirm_password" />
+                            id="confirm_password" required />
       
                         <div className="text-danger">{this.state.errors.confirm_password}</div>
                     </div>
@@ -214,7 +203,8 @@ class RegisterPage extends Component {
                     <input type="checkbox" name="checkbox" id="checkbox" required /> <span>I agree all statements in <a href="https://google.com" target="_blank" rel="noopener noreferrer">terms of service</a></span>.
                     </p>
                  
-                    <input type="submit" value="Submit" className="btn btn-success" />
+                    <button id='sub_btn' onClick={this.handleSubmit}>Submit</button>
+                    {/* <input type="submit" value="Submit"  /> */}
                 </form>
                 <footer>
                     <p><Link to="/">Back to Homepage</Link>.</p>
@@ -223,5 +213,7 @@ class RegisterPage extends Component {
         );
     }
 }
-export  default (RegisterPage)
+export default RegisterPage
+
+
 
